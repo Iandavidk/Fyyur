@@ -3,8 +3,8 @@
 #----------------------------------------------------------------------------#
 
 import json
-import sys
 import os
+import sys
 import dateutil.parser
 from distutils.util import strtobool
 import babel
@@ -17,7 +17,7 @@ from flask_wtf import Form
 from flask import Flask
 from flask_migrate import Migrate
 from forms import *
-from config import DatabaseConfs
+#from config import DatabaseConfs
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy.sql import text
 
@@ -27,7 +27,7 @@ from sqlalchemy.sql import text
 
 app = Flask(__name__)
 moment = Moment(app)
-app.config.from_object('DatabaseConfigurations')
+app.config.from_object('config')
 db = SQLAlchemy(app)
 
 # TODO: connect to a local postgresql database
