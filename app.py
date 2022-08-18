@@ -718,9 +718,26 @@ def create_artist_submission():
 #  ----------------------------------------------------------------
 
 @app.route('/shows')
+
 def shows():
   # displays list of shows at /shows
   # TODO: replace with real venues data.
+  shows_query = db.session.query(Show).join(Artist).join(Venue).all()
+
+  data = []
+  for show in shows_query: 
+    data.append({
+      "venue_id": show.venue_id,
+      "venue_name": show.venue.name,
+      "artist_id": show.artist_id,
+      "artist_name": show.artist.name, 
+      "artist_image_link": show.artist.image_link,
+      "start_time": show.start_time.strftime('%Y-%m-%d %H:%M:%S')
+    })
+
+  return render_template('pages/shows.html', shows=data)
+
+  """
   data=[{
     "venue_id": 1,
     "venue_name": "The Musical Hop",
@@ -758,6 +775,7 @@ def shows():
     "start_time": "2035-04-15T20:00:00.000Z"
   }]
   return render_template('pages/shows.html', shows=data)
+  """
 
 @app.route('/shows/create')
 def create_shows():
@@ -775,6 +793,27 @@ def create_show_submission():
   # TODO: on unsuccessful db insert, flash an error instead.
   # e.g., flash('An error occurred. Show could not be listed.')
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+  error = False
+  try: 
+    artist_id = request.form['artist_id']
+    venue_id = request.form['venue_id']
+    start_time = request.form['start_time']
+
+    print(request.form)
+
+    show = Show(artist_id=artist_id, venue_id=venue_id, start_time=start_time)
+    db.session.add(show)
+    db.session.commit()
+  except: 
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally: 
+    db.session.close()
+  if error: 
+    flash('An error occurred. Show could not be listed.')
+  if not error: 
+    flash('Show was successfully listed')
   return render_template('pages/home.html')
 
 @app.errorhandler(404)
