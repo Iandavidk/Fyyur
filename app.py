@@ -17,9 +17,13 @@ from flask_wtf import Form
 from flask import Flask
 from flask_migrate import Migrate
 from forms import *
-#from config import DatabaseConfs
 from flask_wtf.csrf import CSRFProtect
+from operator import itemgetter
+import re
 from sqlalchemy.sql import text
+from datetime import datetime
+
+
 
 #----------------------------------------------------------------------------#
 # App Config.
@@ -69,6 +73,8 @@ def index():
 def venues():
   # TODO: replace with real venues data.
   #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
+
+
   data=[{
     "city": "San Francisco",
     "state": "CA",
