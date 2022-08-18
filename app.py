@@ -75,12 +75,12 @@ def venues():
   #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
   #       dictionary of key-value pairs.
 
-   data = []
+    data = []
 
     # Read method to get list of venues
     venues = Venue.query.with_entities(Venue.city, Venue.state).distinct(Venue.city, Venue.state).all()
 
-    for venue in venues:
+      for venue in venues:
         data.append({
             "city": venue.city,
             "state": venue.state,
@@ -110,7 +110,7 @@ def venues():
       "num_upcoming_shows": 0,
     }]
   }]
-"""
+  """
 
   return render_template('pages/venues.html', areas=data);
 
