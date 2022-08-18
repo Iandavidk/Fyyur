@@ -73,8 +73,22 @@ def index():
 def venues():
   # TODO: replace with real venues data.
   #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
+  #       dictionary of key-value pairs.
 
+   data = []
 
+    # Read method to get list of venues
+    venues = Venue.query.with_entities(Venue.city, Venue.state).distinct(Venue.city, Venue.state).all()
+
+    for venue in venues:
+        data.append({
+            "city": venue.city,
+            "state": venue.state,
+            "venues": Venue.query.with_entities(Venue.id, Venue.name).filter(Venue.city == venue.city).all(),
+            "num_upcoming_shows": len(Venue.query.join(Venue.shows).filter(Show.start_time > datetime.now()).all())
+        })
+
+  """
   data=[{
     "city": "San Francisco",
     "state": "CA",
@@ -96,6 +110,8 @@ def venues():
       "num_upcoming_shows": 0,
     }]
   }]
+"""
+
   return render_template('pages/venues.html', areas=data);
 
 @app.route('/venues/search', methods=['POST'])
