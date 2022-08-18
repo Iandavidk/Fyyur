@@ -1,7 +1,7 @@
 $(document).ready(function () {
     "use strict";
   
-    //@description Prevent characters or string asides number in phone number input field
+    //Prevent characters or string asides number in phone number input field
      
     $("#phone, #artist_id, #venue_id").on("keypress keyup blur", function (event) {
       $(this).val(
