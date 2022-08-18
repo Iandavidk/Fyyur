@@ -119,29 +119,23 @@ def search_venues():
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
 
-  search_term = request.form.get('search_term', '').strip()
+  search_term = request.form.get('search_term', '')
 
-  venues = Venue.query.filter(Venue.name.ilike('%' + search_term + '%')).all()   
-    
-  venue_list = []
-  now = datetime.now()
-  for venue in venues:
-        venue_shows = Show.query.filter_by(venue_id=venue.id).all()
-        num_upcoming = 0
-        for show in venue_shows:
-            if show.start_time > now:
-                num_upcoming += 1
+  search_result = db.session.query(Venue).filter(Venue.name.ilike(f'%{search_term}%')).all()
+  data = []
 
-        venue_list.append({
-            "id": venue.id,
-            "name": venue.name,
-            "num_upcoming_shows": num_upcoming  
-        })
-
-  response = {
-        "count": len(venues),
-        "data": venue_list
-    }
+  for result in search_result:
+    data.append({
+      "id": result.id,
+      "name": result.name,
+      "num_upcoming_shows": len(db.session.query(Show).filter(Show.venue_id == result.id).filter(Show.start_time > datetime.now()).all()),
+    })
+  
+  response={
+    "count": len(search_result),
+    "data": data
+  }
+  return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
   """
   response={
     "count": 1,
@@ -152,12 +146,61 @@ def search_venues():
     }]
   }
   """
-  return render_template('pages/search_venues.html', results=response, search_term=search_term)
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
+
+  venue = Venue.query.get(venue_id)
+
+  if not venue: 
+    return render_template('errors/404.html')
+
+  upcoming_shows_query = db.session.query(Show).join(Artist).filter(Show.venue_id==venue_id).filter(Show.start_time>datetime.now()).all()
+  upcoming_shows = []
+
+  past_shows_query = db.session.query(Show).join(Artist).filter(Show.venue_id==venue_id).filter(Show.start_time<datetime.now()).all()
+  past_shows = []
+
+  for show in past_shows_query:
+    past_shows.append({
+      "artist_id": show.artist_id,
+      "artist_name": show.artist.name,
+      "artist_image_link": show.artist.image_link,
+      "start_time": show.start_time.strftime('%Y-%m-%d %H:%M:%S')
+    })
+
+  for show in upcoming_shows_query:
+    upcoming_shows.append({
+      "artist_id": show.artist_id,
+      "artist_name": show.artist.name,
+      "artist_image_link": show.artist.image_link,
+      "start_time": show.start_time.strftime("%Y-%m-%d %H:%M:%S")    
+    })
+
+  data = {
+    "id": venue.id,
+    "name": venue.name,
+    "genres": venue.genres,
+    "address": venue.address,
+    "city": venue.city,
+    "state": venue.state,
+    "phone": venue.phone,
+    "website": venue.website,
+    "facebook_link": venue.facebook_link,
+    "seeking_talent": venue.seeking_talent,
+    "seeking_description": venue.seeking_description,
+    "image_link": venue.image_link,
+    "past_shows": past_shows,
+    "upcoming_shows": upcoming_shows,
+    "past_shows_count": len(past_shows),
+    "upcoming_shows_count": len(upcoming_shows),
+  }
+
+  return render_template('pages/show_venue.html', venue=data)
+
+  """
   data1={
     "id": 1,
     "name": "The Musical Hop",
@@ -235,8 +278,7 @@ def show_venue(venue_id):
     "past_shows_count": 1,
     "upcoming_shows_count": 1,
   }
-  data = list(filter(lambda d: d['id'] == venue_id, [data1, data2, data3]))[0]
-  return render_template('pages/show_venue.html', venue=data)
+"""
 
 #  Create Venue
 #  ----------------------------------------------------------------
