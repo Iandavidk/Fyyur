@@ -4,7 +4,7 @@
   <div class="form-wrapper">
     <form class="form" method="post" action="/artists/{{artist.id}}/edit">
       {{ form.csrf_token(value_=csrf_token()) }}
-      {% if form.csrf_token.errors %}
+      {% if form.csrf_token.errors %}https://github.com/Iandavidk/Fyyur/blob/main/templates/forms/edit_artist.html
           <div class="warning">Invalid CSRF token submitted</div>
       {% endif %}
 
@@ -35,7 +35,7 @@
       </div>
       <div class="form-group">
           <label for="phone">Phone</label>
-          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true, maxlength_='15', value_= artist.phone) }}
+          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true, maxlength_='12', value_= artist.phone) }}
         </div>
       <div class="form-group">
         <label for="genres">Genres</label>
